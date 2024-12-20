@@ -1,4 +1,4 @@
-#######################################   BUILD MONITOR PROMETHEUS GRAFANA BY DOCKER COMPOSE #######################################
+BUILD MONITOR PROMETHEUS GRAFANA BY DOCKER COMPOSE
 
 Step 1 :
 
