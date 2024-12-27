@@ -4,7 +4,7 @@ Step 1 :
 
 git clone git@github.com:vindevops99/Monitor.git
 
-step 3:
+step 2:
 
 cd Monitor
 
