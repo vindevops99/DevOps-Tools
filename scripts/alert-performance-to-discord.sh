@@ -6,7 +6,7 @@ applied_tags="[\"13028888681\"]"
 tag_user="<@811769365696>" ## User discord Vinhtran
 
 # Thread ID of the existing thread
-thread_name="Alert Performance Server TepBac.com"
+thread_name="Alert Performance Server mycompany.com"
 
 # Alert thresholds
 DISK_THRESHOLD=80 # percentage
