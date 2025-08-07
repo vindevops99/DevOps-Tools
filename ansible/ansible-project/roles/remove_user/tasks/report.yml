@@ -1,0 +1,35 @@
+- name: Build removal report text
+  run_once: true
+  delegate_to: localhost
+  set_fact:
+    removal_report: |
+      ===== USER REMOVAL SUMMARY FOR '{{ user_name }}' =====
+      Total hosts: {{ play_hosts | length }}
+
+      ✅ Removed:
+      {% for h in play_hosts if hostvars[h].user_modified | default(false) %}
+        - {{ h }} ({{ hostvars[h].ansible_host | default(h) }}) - {{ user_name }}
+      {% else %}
+        (None)
+      {% endfor %}
+
+      ⚠️ Not exist:
+      {% for h in play_hosts if hostvars[h].user_not_exist | default(false) %}
+        - {{ h }} ({{ hostvars[h].ansible_host | default(h) }}) - {{ user_name }}
+      {% else %}
+        (None)
+      {% endfor %}
+
+      ❌ SSH unreachable:
+      {% for h in ansible_play_hosts_all | difference(play_hosts) %}
+        - {{ h }} ({{ hostvars[h].ansible_host | default(h) }}) - {{ user_name }}
+      {% else %}
+        (None)
+      {% endfor %}
+
+- name: Write removal report to file
+  run_once: true
+  delegate_to: localhost
+  copy:
+    dest: "{{ role_path }}/logs/user_removal_report_{{ lookup('pipe','date +%Y%m%d_%H%M%S') }}.txt"
+    content: "{{ removal_report }}"

@@ -1,0 +1,59 @@
+---
+# 1. Kiểm tra user có tồn tại không
+- name: Check if user exists
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ user_name }}"
+  register: user_check
+  ignore_errors: true
+  # failed_when: false
+
+# 2. Xử lý AllowUsers (nếu update_allowusers = true)
+- block:
+    - name: Get current AllowUsers line
+      shell: grep '^AllowUsers' /etc/ssh/sshd_config || true
+      register: allowusers_current
+      changed_when: false
+
+    - name: Compute new AllowUsers line without user
+      set_fact:
+        allowusers_line: >-
+          AllowUsers {{
+            (
+              allowusers_current.stdout.split(':')[-1].split()[1:]
+              | difference([ user_name ])
+            ) | join(' ')
+          }}
+      when: allowusers_current.stdout != ""
+
+    - name: Update AllowUsers in sshd_config
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^AllowUsers'
+        line: "{{ allowusers_line }}"
+        state: present
+        insertafter: EOF
+      notify: Restart sshd
+      when:
+        - allowusers_current.stdout != ""
+        - user_name in allowusers_current.stdout
+  when: update_allowusers | default(false)
+
+# 3. Đổi shell của user thành /sbin/nologin để vô hiệu hóa đăng nhập
+- name: Disable login by changing shell to /sbin/nologin
+  ansible.builtin.user:
+    name: "{{ user_name }}"
+    shell: /sbin/nologin
+  when: user_check is defined and user_check.failed == false
+
+# 4. set fact để đánh dấu user đã được sửa đổi cho report
+- name: "Set fact: user modified"
+  set_fact:
+    user_modified: true
+  when: user_check is defined and user_check.failed == false
+
+- name: "Set fact: user not exist"
+  set_fact:
+    user_not_exist: true
+  when: user_check is not defined or user_check.failed | default(false)
+  
