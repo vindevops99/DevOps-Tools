@@ -1,0 +1,14 @@
+---
+- name: Ensure IPs are present in file
+  lineinfile:
+    path: "{{ dest_file }}"
+    line: "{{ item }}"
+    state: present
+    create: yes
+  loop: "{{ ip_range }}"
+
+- name: Show each IP
+  debug:
+    msg: "{{ item }}"
+  loop: "{{ ip_range }}"
+

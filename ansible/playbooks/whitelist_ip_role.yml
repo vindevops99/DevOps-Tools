@@ -1,0 +1,6 @@
+- name: Add IP range to file using role
+  # hosts: whitelist_ip
+  become: yes
+  gather_facts: no
+  roles:
+    - role: whitelist_ip
