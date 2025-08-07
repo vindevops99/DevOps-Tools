@@ -1,6 +1,0 @@
-- name: Create SSH user with sudo using role
-  hosts: pbx_bk
-  become: yes
-  gather_facts: yes
-  roles:
-    - role: create_user

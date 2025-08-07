@@ -1,6 +1,0 @@
-- name: Remove SSH user with role
-  hosts: pbx_bk
-  become: yes
-  gather_facts: yes
-  roles:
-    - role: remove_user

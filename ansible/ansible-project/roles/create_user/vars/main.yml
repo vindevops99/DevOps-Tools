@@ -1,5 +1,0 @@
----
-user_name: devops
-user_shell: /bin/bash
-user_public_key: devops.pub
-sudo_nopasswd: true

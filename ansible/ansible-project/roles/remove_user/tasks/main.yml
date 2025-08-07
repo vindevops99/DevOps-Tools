@@ -1,5 +1,0 @@
-- name: Include removal tasks
-  include_tasks: remove_user.yml
-
-- name: Include report tasks
-  include_tasks: report.yml
