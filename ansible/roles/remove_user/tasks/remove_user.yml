@@ -46,7 +46,23 @@
     shell: /sbin/nologin
   when: user_check is defined and user_check.failed == false
 
-# 4. set fact để đánh dấu user đã được sửa đổi cho report
+- name: Remove user's public key from login.pub
+  lineinfile:
+    path: /root/.ssh/login.pub
+    regexp: '{{ item }}'
+    state: absent
+  loop: "{{ listkey }}"
+  when: listkey is defined
+
+- name: Remove user's public key from authorized_keys
+  lineinfile:
+    path: /root/.ssh/authorized_keys
+    regexp: '{{ item }}'
+    state: absent
+  loop: "{{ listkey }}"
+  when: listkey is defined
+
+# 5. set fact để đánh dấu user đã được sửa đổi cho report
 - name: "Set fact: user modified"
   set_fact:
     user_modified: true
