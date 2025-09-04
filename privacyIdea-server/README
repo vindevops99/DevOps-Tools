@@ -1,22 +1,9 @@
-## 📑 Table of Contents
+# PrivacyIDEA PAM for SSH (CentOS 7 & Ubuntu 22.04)
 
-1. [Prerequisites](#-prerequisites)  
-2. [CentOS 7 Installation (Manual Build)](#-centos-7-installation-manual-build)  
-   - [Install dependencies](#1-install-dependencies)  
-   - [Build privacyidea-pam](#2-build-privacyidea-pam)  
-   - [Configure SSH](#3-configure-ssh)  
-   - [Configure PAM](#4-configure-pam)  
-   - [Restart SSH](#5-restart-ssh)  
-3. [Ubuntu 22.04 Installation (Using Package)](#-ubuntu-2204-installation-using-package)  
-   - [Install privacyidea-pam](#1-install-privacyidea-pam)  
-   - [Configure PAM](#2-configure-pam)  
-   - [Configure SSH](#3-configure-ssh-1)  
-   - [Restart SSH](#4-restart-ssh-1)  
-4. [Testing](#-testing)  
-5. [Notes](#-notes)  
-6. [References](#-references)
+This guide explains how to install and configure the **PrivacyIDEA PAM module** for SSH authentication with **OTP (One-Time Password)**.
 
----
+You can use this to enforce **SSH login with Public Key + OTP** via PrivacyIDEA.
+
 
 ## 📌 Prerequisites
 
@@ -25,5 +12,87 @@
 - A registered OTP token for your user in PrivacyIDEA
 
 ---
+##############################################
+## ⚙️ CentOS 7 Installation (Manual Build) ##
+##############################################
+```bash
+## ⚙️ Install dependencies ##
+sudo yum install epel-release -y
+sudo yum install gcc-c++ make pam-devel libcurl-devel openssl-devel -y
 
-## ⚙️ CentOS 7 Installation (Manual Build)
+## ⚙️ Build privacyidea-pam ##
+cd /home/<your-user>
+git clone https://github.com/privacyidea/privacyidea-pam.git
+cd privacyidea-pam
+wget https://github.com/nlohmann/json/releases/download/v3.11.3/json.hpp -O include/json.hpp
+make
+sudo make install
+
+## ⚙️ Configure SSH ##
+Edit /etc/ssh/sshd_config:
+
+PasswordAuthentication no
+ChallengeResponseAuthentication yes
+AuthenticationMethods publickey,keyboard-interactive
+UsePAM yes
+# Optional: disable OTP for specific users
+Match User <username>
+    AuthenticationMethods publickey
+
+## ⚙️ Configure PAM ##
+Edit /etc/pam.d/sshd:
+ * Comment out the default line:
+#@include common-auth
+ * Add this at the top:
+auth required pam_privacyidea.so url=https://<PRIVACYIDEA_SERVER> nossl debug
+account required pam_unix.so
+session include system-auth
+
+## ⚙️ Restart SSHD ##
+sudo systemctl restart sshd
+
+##############################################
+## ⚙️ Ubuntu Installation (Using Package)  ##
+##############################################
+
+## ⚙️ Install dependencies ##
+sudo apt-get update
+sudo apt-get install privacyidea-pam -y
+
+## ⚙️ Configure PAM ##
+Edit /etc/pam.d/sshd:
+* Comment out the default line:
+#@include common-auth
+* Add this at the top:
+auth required pam_python.so /lib/security/privacyidea_pam.py url=https://<PRIVACYIDEA_SERVER> auth nosslverify debug
+account required pam_unix.so
+
+## ⚙️ Configure SSH ##
+Edit /etc/ssh/sshd_config:
+PasswordAuthentication no
+ChallengeResponseAuthentication yes
+AuthenticationMethods publickey,keyboard-interactive
+UsePAM yes
+# Optional: disable OTP for specific users
+Match User <username>
+    AuthenticationMethods publickey
+
+## ⚙️ Restart SSHD ##
+sudo systemctl restart sshd
+
+################
+##🔑 Testing ##
+################
+
+* Ensure your user has a registered OTP token in PrivacyIDEA.
+*Try logging in with SSH:
+ssh <user>@<server>
+* You will be asked for:
+Public key authentication
+OTP verification from PrivacyIDEA
+
+References
+
+PrivacyIDEA PAM GitHub: https://github.com/privacyidea/privacyidea-pam
+
+PrivacyIDEA Documentation: https://privacyidea.readthedocs.io/en/latest/
