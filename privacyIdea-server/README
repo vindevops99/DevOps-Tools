@@ -91,8 +91,9 @@ ssh <user>@<server>
 Public key authentication
 OTP verification from PrivacyIDEA
 
-References
+################
+## References ##
+################
 
 PrivacyIDEA PAM GitHub: https://github.com/privacyidea/privacyidea-pam
-
 PrivacyIDEA Documentation: https://privacyidea.readthedocs.io/en/latest/
