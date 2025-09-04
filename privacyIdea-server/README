@@ -1,0 +1,29 @@
+## 📑 Table of Contents
+
+1. [Prerequisites](#-prerequisites)  
+2. [CentOS 7 Installation (Manual Build)](#-centos-7-installation-manual-build)  
+   - [Install dependencies](#1-install-dependencies)  
+   - [Build privacyidea-pam](#2-build-privacyidea-pam)  
+   - [Configure SSH](#3-configure-ssh)  
+   - [Configure PAM](#4-configure-pam)  
+   - [Restart SSH](#5-restart-ssh)  
+3. [Ubuntu 22.04 Installation (Using Package)](#-ubuntu-2204-installation-using-package)  
+   - [Install privacyidea-pam](#1-install-privacyidea-pam)  
+   - [Configure PAM](#2-configure-pam)  
+   - [Configure SSH](#3-configure-ssh-1)  
+   - [Restart SSH](#4-restart-ssh-1)  
+4. [Testing](#-testing)  
+5. [Notes](#-notes)  
+6. [References](#-references)
+
+---
+
+## 📌 Prerequisites
+
+- A working **PrivacyIDEA server**  
+- SSH access to your Linux server  
+- A registered OTP token for your user in PrivacyIDEA
+
+---
+
+## ⚙️ CentOS 7 Installation (Manual Build)
