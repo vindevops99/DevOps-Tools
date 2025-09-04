@@ -52,7 +52,7 @@ session include system-auth
 sudo systemctl restart sshd
 
 ##############################################
-## ⚙️ Ubuntu Installation (Using Package)  ##
+## ⚙️ Ubuntu 16 Installation (Using Package)  ##
 ##############################################
 
 ## ⚙️ Install dependencies ##
@@ -76,6 +76,44 @@ UsePAM yes
 # Optional: disable OTP for specific users
 Match User <username>
     AuthenticationMethods publickey
+
+## ⚙️ Restart SSHD ##
+sudo systemctl restart sshd
+
+##############################################
+## ⚙️ ubuntu 22 Installation (Manual Build) ##
+##############################################
+```bash
+## ⚙️ Install dependencies ##
+sudo apt install git python3-dev libpam-python libpam0g-dev libcurl4-openssl-dev libssl-dev build-essential wget -y
+
+## ⚙️ Build privacyidea-pam ##
+cd /home/<your-user>
+git clone https://github.com/privacyidea/privacyidea-pam.git
+cd privacyidea-pam
+wget https://github.com/nlohmann/json/releases/download/v3.11.3/json.hpp -O include/json.hpp
+make
+sudo make install
+
+## ⚙️ Configure SSH ##
+Edit /etc/ssh/sshd_config:
+
+PasswordAuthentication no
+ChallengeResponseAuthentication yes
+AuthenticationMethods publickey,keyboard-interactive
+UsePAM yes
+# Optional: disable OTP for specific users
+Match User <username>
+    AuthenticationMethods publickey
+
+## ⚙️ Configure PAM ##
+Edit /etc/pam.d/sshd:
+ * Comment out the default line:
+#@include common-auth
+ * Add this at the top:
+auth required pam_privacyidea.so url=https://<PRIVACYIDEA_SERVER> nossl debug
+account required pam_unix.so
+
 
 ## ⚙️ Restart SSHD ##
 sudo systemctl restart sshd
